@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Reflection;
 
 using Windows.System;
 using Windows.UI.Core;
@@ -26,6 +27,8 @@ namespace Digillect.Mvvm.UI
 		private ILifetimeScope _scope;
 		private List<Control> _layoutAwareControls;
 		private Breadcrumb _breadcrumb;
+		private XParameters _viewParameters;
+		private readonly IBreadcrumbService _breadcrumbService;
 
 		#region Constructor
 		/// <summary>
@@ -46,8 +49,7 @@ namespace Digillect.Mvvm.UI
 				StartLayoutUpdates( sender );
 
 				// Keyboard and mouse navigation only apply when occupying the entire window
-				if( ActualHeight == Window.Current.Bounds.Height &&
-					ActualWidth == Window.Current.Bounds.Width )
+				if( ActualHeight == Window.Current.Bounds.Height && ActualWidth == Window.Current.Bounds.Width )
 				{
 					// Listen to the window directly so focus isn't required
 					Window.Current.CoreWindow.Dispatcher.AcceleratorKeyActivated += CoreDispatcher_AcceleratorKeyActivated;
@@ -60,7 +62,7 @@ namespace Digillect.Mvvm.UI
 					var parameter = _breadcrumb.Parameters;
 					_breadcrumb = null;
 
-					HandleNavigationToPage( parameter );
+					HandleNavigationToPage( parameter, true );
 				}
 			};
 
@@ -73,12 +75,34 @@ namespace Digillect.Mvvm.UI
 				Window.Current.CoreWindow.PointerPressed -= CoreWindow_PointerPressed;
 			};
 
-			if( CurrentApplication.IsUnwinding )
-			{
-				_breadcrumb = CurrentApplication.PeekBreadcrumb( GetType() );
-			}
-		}
+			_breadcrumbService = CurrentApplication.Scope.Resolve<IBreadcrumbService>();
 
+			if( _breadcrumbService.IsUnwinding )
+			{
+				_breadcrumb = _breadcrumbService.PeekBreadcrumb( GetType() );
+			}
+
+			GoBack = new RelayCommand( () =>
+			{
+				try
+				{
+					if( _scope != null )
+					{
+						_scope.Resolve<INavigationService>().GoBack();
+					}
+					else
+					{
+						if( Frame.CanGoBack )
+						{
+							Frame.GoBack();
+						}
+					}
+				}
+				catch
+				{
+				}
+			}, () => Frame != null && Frame.CanGoBack );
+		}
 		#endregion
 
 		#region Properties
@@ -99,20 +123,14 @@ namespace Digillect.Mvvm.UI
 		/// <value>
 		/// The current application.
 		/// </value>
-		protected static Digillect.Mvvm.UI.Application CurrentApplication
+		protected static WindowsRTApplication CurrentApplication
 		{
-			get { return (Digillect.Mvvm.UI.Application) Application.Current; }
+			get { return (WindowsRTApplication) Application.Current; }
 		}
 
-		/// <summary>
-		/// Gets the context for the current page.
-		/// </summary>
-		/// <value>
-		/// The context.
-		/// </value>
-		public PageDataContext Context
+		public XParameters ViewParameters
 		{
-			get { return (dynamic) DataContext; }
+			get { return _viewParameters; }
 		}
 		#endregion
 
@@ -134,7 +152,7 @@ namespace Digillect.Mvvm.UI
 		System.Diagnostics.CodeAnalysis.SuppressMessage( "Microsoft.Design", "CA1045:DoNotPassTypesByReference", MessageId = "0#" )]
 		protected bool SetProperty<T>( ref T storage, T value, [CallerMemberName] string propertyName = null )
 		{
-			if( object.Equals( storage, value ) )
+			if( Equals( storage, value ) )
 			{
 				return false;
 			}
@@ -167,101 +185,9 @@ namespace Digillect.Mvvm.UI
 				handler( this, eventArgs );
 			}
 		}
-
 		#endregion
 
 		#region Navigation handling
-		/// <summary>
-		/// Invoked as an event handler to navigate backward in the page's associated
-		/// <see cref="Frame"/> until it reaches the top of the navigation stack.
-		/// </summary>
-		/// <param name="sender">Instance that triggered the event.</param>
-		/// <param name="eventArgs">Event data describing the conditions that led to the event.</param>
-		protected virtual void GoHome( object sender, RoutedEventArgs eventArgs )
-		{
-			// Use the navigation frame to return to the topmost page
-			if( Frame != null )
-			{
-				while( Frame.CanGoBack )
-				{
-					Frame.GoBack();
-				}
-			}
-		}
-
-		/// <summary>
-		/// Invoked as an event handler to navigate backward in the navigation stack
-		/// associated with this page's <see cref="Frame"/>.
-		/// </summary>
-		/// <param name="sender">Instance that triggered the event.</param>
-		/// <param name="eventArgs">Event data describing the conditions that led to the
-		/// event.</param>
-		protected virtual void GoBack( object sender, RoutedEventArgs eventArgs )
-		{
-			// Use the navigation frame to return to the previous page
-			if( Frame != null && Frame.CanGoBack )
-			{
-				Frame.GoBack();
-			}
-		}
-
-		/// <summary>
-		/// Invoked as an event handler to navigate forward in the navigation stack
-		/// associated with this page's <see cref="Frame"/>.
-		/// </summary>
-		/// <param name="sender">Instance that triggered the event.</param>
-		/// <param name="eventArgs">Event data describing the conditions that led to the
-		/// event.</param>
-		protected virtual void GoForward( object sender, RoutedEventArgs eventArgs )
-		{
-			// Use the navigation frame to move to the next page
-			if( Frame != null && Frame.CanGoForward )
-			{
-				Frame.GoForward();
-			}
-		}
-
-		/// <summary>
-		/// Navigates to the the specified page.
-		/// </summary>
-		/// <param name="pageType">Type of the page.</param>
-		protected void Navigate( Type pageType )
-		{
-			Navigate( pageType, (NavigationParameters) null );
-		}
-
-		/// <summary>
-		/// Navigates to the specified page with parameters.
-		/// </summary>
-		/// <param name="pageType">Type of the page.</param>
-		/// <param name="parameters">The parameters.</param>
-		protected void Navigate( Type pageType, NavigationParameters parameters )
-		{
-			Frame.Navigate( pageType, parameters );
-		}
-
-		/// <summary>
-		/// Navigates to the specified page with single string parameter named <c>value</c>.
-		/// </summary>
-		/// <param name="pageType">Type of the page.</param>
-		/// <param name="parameter">The parameter.</param>
-		protected void Navigate( Type pageType, string parameter )
-		{
-			Frame.Navigate( pageType, NavigationParameters.From( "value", parameter ) );
-		}
-
-		/// <summary>
-		/// Navigates to the specified page with single parameter named <c>value</c>.
-		/// </summary>
-		/// <typeparam name="T">Parameter type.</typeparam>
-		/// <param name="pageType">Type of the page.</param>
-		/// <param name="parameter">The parameter.</param>
-		protected void Navigate<T>( Type pageType, T parameter )
-			where T: struct
-		{
-			Frame.Navigate( pageType, NavigationParameters.From<T>( "value", parameter ) );
-		}
-
 		/// <summary>
 		/// Called when a page becomes the active page in a frame.
 		/// </summary>
@@ -276,6 +202,7 @@ namespace Digillect.Mvvm.UI
 			}
 
 			object parameter = null;
+			var resurrection = false;
 
 			if( e.NavigationMode == NavigationMode.New )
 			{
@@ -287,10 +214,6 @@ namespace Digillect.Mvvm.UI
 				else
 				{
 					parameter = e.Parameter;
-					if( e.Parameter == null || e.Parameter is NavigationParameters )
-					{
-						CurrentApplication.PushBreadcrumb( GetType(), e.Parameter as NavigationParameters );
-					}
 				}
 			}
 
@@ -300,32 +223,38 @@ namespace Digillect.Mvvm.UI
 				{
 					// Most probably we're unwinding
 
-					var breadcrumb = CurrentApplication.PeekBreadcrumb( GetType() );
+					var breadcrumb = _breadcrumbService.PeekBreadcrumb( GetType() );
 
 					parameter = breadcrumb.Parameters;
+					resurrection = true;
 				}
 			}
 
-			HandleNavigationToPage( parameter );
+			HandleNavigationToPage( parameter, resurrection );
 		}
 
-		/// <summary>
-		/// Handles the navigation to page.
-		/// </summary>
-		/// <param name="parameter">The parameter.</param>
-		protected void HandleNavigationToPage( object parameter )
+		private void HandleNavigationToPage( object parameter, bool resurrection )
 		{
 			if( _scope == null )
 			{
+				ProcessParameters( parameter );
+
 				_scope = CurrentApplication.Scope.BeginLifetimeScope();
 
 				DataContext = CreateDataContext();
 
-				OnPageCreated( parameter );
+				if( resurrection )
+				{
+					OnPageResurrected();
+				}
+				else
+				{
+					OnPageCreated();
+				}
 
-				var pageDecorationService = (IPageDecorationService ) null;
+				IPageDecorationService pageDecorationService;
 
-				if( _scope.TryResolve<IPageDecorationService>( out pageDecorationService ) )
+				if( _scope.TryResolve( out pageDecorationService ) )
 				{
 					pageDecorationService.AddDecoration( this );
 				}
@@ -340,21 +269,19 @@ namespace Digillect.Mvvm.UI
 		/// Called when a page is no longer the active page in a frame.
 		/// </summary>
 		/// <param name="e">An object that contains the event data.</param>
-		protected override void OnNavigatedFrom( NavigationEventArgs e )
+		protected override void OnNavigatingFrom( NavigatingCancelEventArgs e )
 		{
 			if( e != null )
 			{
 				if( e.NavigationMode == NavigationMode.Back )
 				{
-					CurrentApplication.PopBreadcrumb( GetType() );
-
 					OnPageDestroyed();
 
 					if( _scope != null )
 					{
-						var pageDecorationService = (IPageDecorationService) null;
+						IPageDecorationService pageDecorationService;
 
-						if( _scope.TryResolve<IPageDecorationService>( out pageDecorationService ) )
+						if( _scope.TryResolve( out pageDecorationService ) )
 						{
 							pageDecorationService.RemoveDecoration( this );
 						}
@@ -369,9 +296,8 @@ namespace Digillect.Mvvm.UI
 				}
 			}
 
-			base.OnNavigatedFrom( e );
+			base.OnNavigatingFrom( e );
 		}
-
 		#endregion
 
 		#region Page Lifecycle handlers
@@ -379,16 +305,16 @@ namespace Digillect.Mvvm.UI
 		/// Creates data context to be set for the page. Override to create your own data context.
 		/// </summary>
 		/// <returns>Data context that will be set to <see cref="Windows.UI.Xaml.FrameworkElement.DataContext"/> property.</returns>
-		protected virtual PageDataContext CreateDataContext()
+		protected virtual object CreateDataContext()
 		{
-			return Scope.Resolve<PageDataContext.Factory>()( this );
+			return this;
 		}
 
 		/// <summary>
 		/// This method is called when page is visited for the very first time. You should perform
 		/// initialization and create one-time initialized resources here.
 		/// </summary>
-		protected virtual void OnPageCreated( object parameter )
+		protected virtual void OnPageCreated()
 		{
 		}
 
@@ -397,6 +323,14 @@ namespace Digillect.Mvvm.UI
 		/// so most of the time you should just ignore this event.
 		/// </summary>
 		protected virtual void OnPageAwaken()
+		{
+		}
+
+		/// <summary>
+		///     This method is called when page navigated after application has been resurrected from thombstombed state.
+		///     Use saved data to restore state.
+		/// </summary>
+		protected virtual void OnPageResurrected()
 		{
 		}
 
@@ -413,8 +347,41 @@ namespace Digillect.Mvvm.UI
 		protected virtual void OnPageDestroyed()
 		{
 		}
-
 		#endregion
+
+		protected virtual void ProcessParameters( object parameters )
+		{
+			if( parameters != null && !(parameters is XParameters) )
+			{
+				throw new ArgumentException( "Parameter of incompatible type has been passed to view." );
+			}
+
+			_viewParameters = (XParameters) parameters ?? XParameters.Empty;
+
+			var pageType = GetType();
+
+			foreach( var attribute in pageType.GetTypeInfo().GetCustomAttributes( typeof( ViewParameterAttribute ), true ).Cast<ViewParameterAttribute>() )
+			{
+				var parameterExists = _viewParameters.Contains( attribute.ParameterName );
+
+				if( attribute.Required && !parameterExists )
+				{
+					throw new ViewParameterException( string.Format( "View {0} requires argument {1} of type {2}.", pageType, attribute.ParameterName, attribute.ParameterType ) );
+				}
+
+				if( parameterExists )
+				{
+					var parameterValue = _viewParameters.GetValue<object>( attribute.ParameterName );
+
+					if( attribute.ParameterType.GetTypeInfo().IsAssignableFrom( parameterValue.GetType().GetTypeInfo() ) )
+					{
+						throw new ViewParameterException( string.Format( "View {0} requires argument {1} of type {2}, but it is of type {3}.", pageType, attribute.ParameterName, attribute.ParameterType, parameterValue.GetType() ) );
+					}
+				}
+			}
+		}
+
+		public IRelayCommand GoBack { get; private set; }
 
 		#region Keyboard & Mouse
 		/// <summary>
@@ -436,7 +403,7 @@ namespace Digillect.Mvvm.UI
 				(int) virtualKey == 166 || (int) virtualKey == 167) )
 			{
 				var coreWindow = Window.Current.CoreWindow;
-				var downState = CoreVirtualKeyStates.Down;
+				const CoreVirtualKeyStates downState = CoreVirtualKeyStates.Down;
 				var menuKey = (coreWindow.GetKeyState( VirtualKey.Menu ) & downState) == downState;
 				var controlKey = (coreWindow.GetKeyState( VirtualKey.Control ) & downState) == downState;
 				var shiftKey = (coreWindow.GetKeyState( VirtualKey.Shift ) & downState) == downState;
@@ -448,7 +415,11 @@ namespace Digillect.Mvvm.UI
 				{
 					// When the previous key or Alt+Left are pressed navigate back
 					args.Handled = true;
-					GoBack( this, new RoutedEventArgs() );
+
+					if( _scope != null )
+					{
+						Scope.Resolve<INavigationService>().GoBack();
+					}
 				}
 				else
 				{
@@ -457,7 +428,7 @@ namespace Digillect.Mvvm.UI
 					{
 						// When the next key or Alt+Right are pressed navigate forward
 						args.Handled = true;
-						GoForward( this, new RoutedEventArgs() );
+						//GoForward( this, new RoutedEventArgs() );
 					}
 				}
 			}
@@ -485,13 +456,19 @@ namespace Digillect.Mvvm.UI
 			if( backPressed ^ forwardPressed )
 			{
 				args.Handled = true;
-				if( backPressed )
+
+				if( _scope != null )
 				{
-					GoBack( this, new RoutedEventArgs() );
-				}
-				if( forwardPressed )
-				{
-					GoForward( this, new RoutedEventArgs() );
+					var navigationService = _scope.Resolve<INavigationService>();
+
+					if( backPressed )
+					{
+						navigationService.GoBack();
+					}
+					if( forwardPressed )
+					{
+						//GoForward( this, new RoutedEventArgs() );
+					}
 				}
 			}
 		}

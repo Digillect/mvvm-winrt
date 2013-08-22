@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digillect.Mvvm.Windows8", "src\Digillect.Mvvm.Windows8\Digillect.Mvvm.Windows8.csproj", "{344778D6-EEB9-4302-ADDD-2027E4FFCDCE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Digillect.Mvvm.WindowsRT", "src\Digillect.Mvvm.WindowsRT\Digillect.Mvvm.WindowsRT.csproj", "{344778D6-EEB9-4302-ADDD-2027E4FFCDCE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

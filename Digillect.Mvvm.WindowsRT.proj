@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+
+		<BuildPath>target\$(Configuration)\bin</BuildPath>
+		<OutputPath>target\$(Configuration)\packages</OutputPath>
+		<VersionAssembly>$(BuildPath)\winrt\Digillect.Mvvm.WindowsRT.dll</VersionAssembly>
+		<ExcludeList>$(BuildPath)\**\*.xml.old;$(BuildPath)\**\*.noReferenceAssembly</ExcludeList>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<LibWin8 Include="$(BuildPath)\winrt\**\Digillect.Mvvm.WindowsRT*" Exclude="$(ExcludeList)"/>
+	</ItemGroup>
+
+	<Import Project="packages\Digillect.Build.Tools.1.2.0\tools\NuGet.Packaging.targets"/>
+
+	<Target Name="TransformPackageVersion">
+		<PropertyGroup>
+			<_Major>$([System.Text.RegularExpressions.Regex]::Replace($(PackageVersion), "(\d+.\d+.\d+)\.\d+.*", "$1"))</_Major>
+			<_Build>$([System.Text.RegularExpressions.Regex]::Replace($(PackageVersion), "\d+.\d+.\d+\.(\d+).*", "$1"))</_Build>
+			<_Suffix>$([System.Text.RegularExpressions.Regex]::Replace($(PackageVersion), "\d+.\d+.\d+\.\d+(.*)", "$1"))</_Suffix>
+			<_FormattedBuildNumber>$([System.String]::Format( "{0:00000}", $([MSBuild]::Add( $(_Build), 0 )) ))</_FormattedBuildNumber>
+
+			<PackageVersion>$(_Major)$(_Suffix)</PackageVersion>
+			<PackageVersion Condition=" '$(BranchName)' != '' And '$(BranchName)' != 'master' ">$(PackageVersion)-$(BranchName)-$(_FormattedBuildNumber)</PackageVersion>
+		</PropertyGroup>
+	</Target>
+</Project>
