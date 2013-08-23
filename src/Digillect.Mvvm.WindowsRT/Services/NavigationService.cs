@@ -25,6 +25,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
+using Windows.UI.Core;
+
 using Autofac;
 
 using Digillect.Mvvm.UI;
@@ -88,7 +90,25 @@ namespace Digillect.Mvvm.Services
 
 			var app = (WindowsRTApplication) Application.Current;
 
-			app.RootFrame.Navigated += RootFrame_Navigated;
+			if( app.RootFrame == null )
+			{
+				Window.Current.Activated += Window_Activated;
+			}
+			else
+			{
+				app.RootFrame.Navigated += RootFrame_Navigated;
+			}
+		}
+
+		private void Window_Activated( object sender, WindowActivatedEventArgs e )
+		{
+			var app = (WindowsRTApplication) Application.Current;
+
+			if( app.RootFrame != null )
+			{
+				app.RootFrame.Navigated += RootFrame_Navigated;
+				Window.Current.Activated -= Window_Activated;
+			}
 		}
 		#endregion
 

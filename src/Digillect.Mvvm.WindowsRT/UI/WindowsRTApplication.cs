@@ -27,7 +27,7 @@ namespace Digillect.Mvvm.UI
 		[SuppressMessage( "Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors" )]
 		protected WindowsRTApplication()
 		{
-			InitializeIoC();
+			//InitializeIoC();
 
 			Suspending += ( s, e ) => HandleSuspension( e );
 		}
@@ -57,6 +57,7 @@ namespace Digillect.Mvvm.UI
 		{
 			RootFrame = CreateRootFrame();
 
+			InitializeIoC();
 			HandleLaunch( args );
 
 			RootFrame.NavigationFailed += RootFrame_NavigationFailed;

@@ -9,8 +9,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("Retail")]
 #endif
 [assembly: AssemblyCompany( "Actis Systems" )]
-[assembly: AssemblyProduct("Windows Phone adaptor for Digillect Model-View-ViewModel framework.")]
-[assembly: AssemblyCopyright("� 2011-2012 Actis Systems. All rights reserved.")]
+[assembly: AssemblyProduct("WindowsRT adaptor for Digillect Model-View-ViewModel framework.")]
+[assembly: AssemblyCopyright("� 2011-2013 Actis Systems. All rights reserved.")]
 [assembly: AssemblyTrademark("Digillect is a registered trademark of Actis Systems.")]
 
 [assembly: AssemblyVersion(AssemblyInfo.Version)]
@@ -32,7 +32,7 @@ internal static class AssemblyInfo
 	public const string Major = "2";
 	public const string Minor = "0";
 	public const string Revision = "0";
-	public const string BuildNumber = "6";
+	public const string BuildNumber = "0";
 
 	public const string Version = Major + "." + Minor + "." + Revision + ".0";
 	public const string FileVersion = Major + "." + Minor + "." + Revision + "." + BuildNumber;

@@ -36,7 +36,6 @@ namespace Digillect.Mvvm.Services
 	/// </summary>
 	public class DefaultViewDiscoveryService : IViewDiscoveryService
 	{
-		private readonly string _rootNamespace;
 		private readonly List<Type> _viewTypes;
 
 		#region Constructors/Disposer
@@ -48,7 +47,6 @@ namespace Digillect.Mvvm.Services
 			var app = (WindowsRTApplication) Application.Current;
 			var appType = app.GetType();
 
-			_rootNamespace = appType.Namespace;
 			_viewTypes = appType.GetTypeInfo()
 				.Assembly.DefinedTypes
 					.Where( t => t.GetCustomAttributes( typeof( ViewAttribute ), false ).Any() )
