@@ -373,7 +373,7 @@ namespace Digillect.Mvvm.UI
 				{
 					var parameterValue = _viewParameters.GetValue<object>( attribute.ParameterName );
 
-					if( attribute.ParameterType.GetTypeInfo().IsAssignableFrom( parameterValue.GetType().GetTypeInfo() ) )
+					if( !attribute.ParameterType.GetTypeInfo().IsAssignableFrom( parameterValue.GetType().GetTypeInfo() ) )
 					{
 						throw new ViewParameterException( string.Format( "View {0} requires argument {1} of type {2}, but it is of type {3}.", pageType, attribute.ParameterName, attribute.ParameterType, parameterValue.GetType() ) );
 					}
