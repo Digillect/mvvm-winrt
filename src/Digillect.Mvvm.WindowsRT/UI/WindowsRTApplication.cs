@@ -65,6 +65,24 @@ namespace Digillect.Mvvm.UI
 			Window.Current.Content = RootFrame;
 			Window.Current.Activate();
 		}
+
+		protected override void OnSearchActivated( SearchActivatedEventArgs args )
+		{
+			base.OnSearchActivated( args );
+
+			if( args.Kind == ActivationKind.Search )
+			{
+				RootFrame = CreateRootFrame();
+
+				InitializeIoC();
+				HandleSearchActivated( args );
+
+				RootFrame.NavigationFailed += RootFrame_NavigationFailed;
+
+				Window.Current.Content = RootFrame;
+				Window.Current.Activate();
+			}
+		}
 		#endregion
 
 		#region Event handlers
@@ -92,6 +110,16 @@ namespace Digillect.Mvvm.UI
 		///     The <see cref="LaunchActivatedEventArgs" /> instance containing the event data.
 		/// </param>
 		protected virtual void HandleLaunch( LaunchActivatedEventArgs eventArgs )
+		{
+		}
+
+		/// <summary>
+		///     Handles the search activated.
+		/// </summary>
+		/// <param name="eventArgs">
+		///     The <see cref="SearchActivatedEventArgs" /> instance containing the event data.
+		/// </param>
+		protected virtual void HandleSearchActivated( SearchActivatedEventArgs eventArgs )
 		{
 		}
 
