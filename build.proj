@@ -1,17 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="BuildAndPackage" InitialTargets="CheckForBuildTools" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<Target Name="CheckForBuildTools" Condition="!Exists('packages\Digillect.Build.Tools.1.2.6\tools\Build.targets')">
-		<Error Text="Project requires Digillect.Build.Tools package to run."/>
-	</Target>
-	
-	<Import Project="packages\Digillect.Build.Tools.1.2.6\tools\Build.targets" Condition="Exists('packages\Digillect.Build.Tools.1.2.6\tools\Build.targets')"/>
-
+<Project DefaultTargets="Build;Package" InitialTargets="CheckForBuildTools" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<PropertyGroup>
-		<Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+		<BuildToolsVersion>1.2.6</BuildToolsVersion>
+		<Configuration Condition=" '$(Configuration)'=='' ">Release</Configuration>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="src\Digillect.Mvvm.WindowsRT\Digillect.Mvvm.WindowsRT.csproj"/>
+		<ProjectReference Include="$(MSBuildProjectDirectory)\src\Digillect.Mvvm.WindowsRT\Digillect.Mvvm.WindowsRT.csproj"/>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -22,10 +17,15 @@
 		<DirectoryToCleanup Include="_ReSharper.*"/>
 	</ItemGroup>
 
+	<Import Project="$(MSBuildProjectDirectory)\packages\Digillect.Build.Tools.$(BuildToolsVersion)\tools\Build.targets" Condition="Exists('$(MSBuildProjectDirectory)\packages\Digillect.Build.Tools.$(BuildToolsVersion)\tools\Build.targets')"/>
+
+	<Target Name="CheckForBuildTools" Condition="!Exists('$(MSBuildProjectDirectory)\packages\Digillect.Build.Tools.$(BuildToolsVersion)\tools\Build.targets')">
+		<Error Text="Project requires Digillect.Build.Tools package to run."/>
+	</Target>
+	
 	<Target Name="UpdateAssemblyVersion" Condition="'$(BuildNumber)' != ''">
-		<FileUpdate Files="src\AssemblyVersionInfo.cs" Regex='BuildNumber = "\d+"' ReplacementText='BuildNumber = "$(BuildNumber)"'/>
+		<FileUpdate Files="src\AssemblySharedInfo.cs" Regex='BuildNumber = "\d+"' ReplacementText='BuildNumber = "$(BuildNumber)"'/>
 	</Target>
 
 	<Target Name="BeforeBuildOrRebuild" DependsOnTargets="UpdateAssemblyVersion"/>
-	<Target Name="BuildAndPackage" DependsOnTargets="Build;Package"/>
 </Project>

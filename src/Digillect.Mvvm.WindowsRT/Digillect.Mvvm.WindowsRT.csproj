@@ -7,7 +7,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{76F2B822-3546-4E45-824D-603C9A9ED838}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <OutputPath>..\..\target\$(Configuration)\bin\Digillect.Mvvm.WindowsRT\</OutputPath>
+    <OutputPath>..\..\target\$(Configuration)\bin\</OutputPath>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Digillect.Mvvm</RootNamespace>
     <AssemblyName>Digillect.Mvvm.WindowsRT</AssemblyName>
