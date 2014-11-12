@@ -1,5 +1,5 @@
-﻿#region Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
-// Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
+﻿#region Copyright (c) 2011-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
+// Copyright (c) 2011-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
 // software and associated documentation files (the "Software"), to deal in the Software
@@ -37,34 +37,34 @@ namespace Digillect.Mvvm.Services
 		/// <summary>
 		///     Performs decoration of the page.
 		/// </summary>
-		/// <param name="page">The page.</param>
-		public void AddDecoration( Page page )
+		/// <param name="windowsRtPage">The page.</param>
+		public void AddDecoration( WindowsRTPage windowsRtPage )
 		{
-			if( page == null )
+			if( windowsRtPage == null )
 			{
-				throw new ArgumentNullException( "page" );
+				throw new ArgumentNullException( "windowsRtPage" );
 			}
 
-			foreach( var decorator in page.Scope.Resolve<IEnumerable<IPageDecorator>>() )
+			foreach( var decorator in windowsRtPage.Scope.Resolve<IEnumerable<IPageDecorator>>() )
 			{
-				decorator.AddDecoration( page );
+				decorator.AddDecoration( windowsRtPage );
 			}
 		}
 
 		/// <summary>
 		///     Optionally removes decoration from the page.
 		/// </summary>
-		/// <param name="page">The page.</param>
-		public void RemoveDecoration( Page page )
+		/// <param name="windowsRtPage">The page.</param>
+		public void RemoveDecoration( WindowsRTPage windowsRtPage )
 		{
-			if( page == null )
+			if( windowsRtPage == null )
 			{
-				throw new ArgumentNullException( "page" );
+				throw new ArgumentNullException( "windowsRtPage" );
 			}
 
-			foreach( var decorator in page.Scope.Resolve<IEnumerable<IPageDecorator>>() )
+			foreach( var decorator in windowsRtPage.Scope.Resolve<IEnumerable<IPageDecorator>>() )
 			{
-				decorator.RemoveDecoration( page );
+				decorator.RemoveDecoration( windowsRtPage );
 			}
 		}
 		#endregion

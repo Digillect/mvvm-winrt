@@ -1,14 +1,33 @@
-﻿using System;
+﻿#region Copyright (c) 2011-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
+// Copyright (c) 2011-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy of this
+// software and associated documentation files (the "Software"), to deal in the Software
+// without restriction, including without limitation the rights to use, copy, modify, merge,
+// publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons
+// to whom the Software is furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all copies or
+// substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Reflection;
 
 using Windows.System;
 using Windows.UI.Core;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -22,7 +41,7 @@ namespace Digillect.Mvvm.UI
 	/// <summary>
 	/// Base for application pages.
 	/// </summary>
-	public class Page : Windows.UI.Xaml.Controls.Page, INotifyPropertyChanged
+	public class WindowsRTPage : Windows.UI.Xaml.Controls.Page, INotifyPropertyChanged
 	{
 		private ILifetimeScope _scope;
 		private List<Control> _layoutAwareControls;
@@ -32,9 +51,9 @@ namespace Digillect.Mvvm.UI
 
 		#region Constructor
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Page"/> class.
+		/// Initializes a new instance of the <see cref="WindowsRTPage"/> class.
 		/// </summary>
-		public Page()
+		public WindowsRTPage()
 		{
 			if( Windows.ApplicationModel.DesignMode.DesignModeEnabled )
 			{
@@ -504,14 +523,14 @@ namespace Digillect.Mvvm.UI
 			{
 				// Start listening to view state changes when there are controls interested in updates
 				Window.Current.SizeChanged += WindowSizeChanged;
-				
+
 				_layoutAwareControls = new List<Control>();
 			}
 
 			_layoutAwareControls.Add( control );
 
 			// Set the initial visual state of the control
-			VisualStateManager.GoToState( control, DetermineVisualState( ApplicationView.Value ), false );
+			VisualStateManager.GoToState( control, DetermineVisualState(), false );
 		}
 
 		private void WindowSizeChanged( object sender, WindowSizeChangedEventArgs e )
@@ -532,35 +551,50 @@ namespace Digillect.Mvvm.UI
 		public void StopLayoutUpdates( object sender )
 		{
 			var control = sender as Control;
-			
+
 			if( control == null || _layoutAwareControls == null )
 			{
 				return;
 			}
-			
+
 			_layoutAwareControls.Remove( control );
-			
+
 			if( _layoutAwareControls.Count == 0 )
 			{
 				// Stop listening to view state changes when no controls are interested in updates
 				_layoutAwareControls = null;
-				
+
 				Window.Current.SizeChanged -= WindowSizeChanged;
 			}
 		}
 
 		/// <summary>
-		/// Translates <see cref="ApplicationViewState"/> values into strings for visual state
-		/// management within the page.  The default implementation uses the names of enum values.
-		/// Subclasses may override this method to control the mapping scheme used.
+		/// Calculate value for visual state for the page.
 		/// </summary>
-		/// <param name="viewState">View state for which a visual state is desired.</param>
 		/// <returns>Visual state name used to drive the
 		/// <see cref="VisualStateManager"/></returns>
 		/// <seealso cref="InvalidateVisualState"/>
-		protected virtual string DetermineVisualState( ApplicationViewState viewState )
+		protected virtual string DetermineVisualState()
 		{
-			return viewState.ToString();
+			var windowWidth = Window.Current.Bounds.Width;
+			var windowHeight = Window.Current.Bounds.Height;
+
+			string viewState;
+
+			if( windowWidth < 500 )
+			{
+				viewState = PageVisualState.Snapped.ToString();
+			}
+			else if( windowWidth < windowHeight )
+			{
+				viewState = PageVisualState.FullScreenPortrait.ToString();
+			}
+			else
+			{
+				viewState = PageVisualState.FullScreenLandscape.ToString();
+			}
+
+			return viewState;
 		}
 
 		/// <summary>
@@ -576,7 +610,7 @@ namespace Digillect.Mvvm.UI
 		{
 			if( _layoutAwareControls != null )
 			{
-				var visualState = DetermineVisualState( ApplicationView.Value );
+				var visualState = DetermineVisualState();
 
 				foreach( var layoutAwareControl in _layoutAwareControls )
 				{

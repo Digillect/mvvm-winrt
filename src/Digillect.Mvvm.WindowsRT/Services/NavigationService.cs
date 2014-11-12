@@ -1,5 +1,5 @@
-﻿#region Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
-// Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
+﻿#region Copyright (c) 2011-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
+// Copyright (c) 2011-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
 // software and associated documentation files (the "Software"), to deal in the Software
@@ -52,6 +52,7 @@ namespace Digillect.Mvvm.Services
 		private readonly Dictionary<string, ViewDescriptor> _views = new Dictionary<string, ViewDescriptor>( StringComparer.OrdinalIgnoreCase );
 
 		private bool _initialized;
+		private bool _navigationIsInProgress;
 
 		#region Constructors/Disposer
 		/// <summary>
@@ -161,7 +162,51 @@ namespace Digillect.Mvvm.Services
 		/// </summary>
 		public void GoBack()
 		{
-			((WindowsRTApplication) Application.Current).RootFrame.GoBack();
+			if( !_navigationIsInProgress )
+			{
+				_navigationIsInProgress = true;
+
+				((WindowsRTApplication) Application.Current).RootFrame.GoBack();
+
+				_navigationIsInProgress = false;
+			}
+		}
+
+		/// <summary>
+		///     Navigates back to the specified view or first view if not found.
+		/// </summary>
+		/// <param name="viewName">Name of the view.</param>
+		public void GoBack( string viewName )
+		{
+			if( !_navigationIsInProgress )
+			{
+				_navigationIsInProgress = true;
+
+				var backStacks = ((WindowsRTApplication) Application.Current).RootFrame.BackStack;
+				var journalEntries = backStacks.ToArray();
+
+				ViewDescriptor descriptor;
+
+				if( !_views.TryGetValue( viewName, out descriptor ) )
+				{
+					throw new ViewNavigationException( String.Format( "View '{0}' is not registered.", viewName ) );
+				}
+
+				for( int i = 0; i < journalEntries.Count() - 1; i++ )
+				{
+					if( journalEntries[i].SourcePageType != descriptor.Type )
+					{
+						backStacks.Remove( backStacks.LastOrDefault() );
+					}
+					else
+					{
+						break;
+					}
+				}
+
+				_navigationIsInProgress = false;
+				GoBack();
+			}
 		}
 
 		public object CreateSnapshot()

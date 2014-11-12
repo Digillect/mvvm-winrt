@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="BuildAndPackage" InitialTargets="CheckForBuildTools" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<PropertyGroup>
-		<BuildTools>packages\Digillect.Build.Tools.1.2.0</BuildTools>
-		<Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
-	</PropertyGroup>
-
-	<Target Name="CheckForBuildTools" Condition="!Exists('$(BuildTools)\tools\Build.targets')">
+	<Target Name="CheckForBuildTools" Condition="!Exists('packages\Digillect.Build.Tools.1.2.6\tools\Build.targets')">
 		<Error Text="Project requires Digillect.Build.Tools package to run."/>
 	</Target>
 	
-	<Import Project="$(BuildTools)\tools\Build.targets" Condition="Exists('$(BuildTools)\tools\Build.targets')"/>
+	<Import Project="packages\Digillect.Build.Tools.1.2.6\tools\Build.targets" Condition="Exists('packages\Digillect.Build.Tools.1.2.6\tools\Build.targets')"/>
+
+	<PropertyGroup>
+		<Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="src\Digillect.Mvvm.WindowsRT\Digillect.Mvvm.WindowsRT.csproj">
-			<AdditionalProperties>VisualStudioVersion=11.0</AdditionalProperties>
-		</ProjectReference>
+		<ProjectReference Include="src\Digillect.Mvvm.WindowsRT\Digillect.Mvvm.WindowsRT.csproj"/>
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackagingProjectReference Include="Digillect.Mvvm.WindowsRT.proj"/>
 	</ItemGroup>
 
+	<ItemGroup>
+		<DirectoryToCleanup Include="_ReSharper.*"/>
+	</ItemGroup>
+
 	<Target Name="UpdateAssemblyVersion" Condition="'$(BuildNumber)' != ''">
-		<FileUpdate Files="src\AssemblySharedInfo.cs" Regex='BuildNumber = "\d+"' ReplacementText='BuildNumber = "$(BuildNumber)"'/>
+		<FileUpdate Files="src\AssemblyVersionInfo.cs" Regex='BuildNumber = "\d+"' ReplacementText='BuildNumber = "$(BuildNumber)"'/>
 	</Target>
 
 	<Target Name="BeforeBuildOrRebuild" DependsOnTargets="UpdateAssemblyVersion"/>
-
 	<Target Name="BuildAndPackage" DependsOnTargets="Build;Package"/>
 </Project>

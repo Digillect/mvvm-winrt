@@ -1,5 +1,5 @@
-﻿#region Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
-// Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
+﻿#region Copyright (c) 2011-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
+// Copyright (c) 2011-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
 // software and associated documentation files (the "Software"), to deal in the Software
@@ -33,19 +33,19 @@ namespace Digillect.Mvvm.Services
 		/// <summary>
 		///     Adds the decoration to the page.
 		/// </summary>
-		/// <param name="page">The page to decorate.</param>
-		public void AddDecoration( Page page )
+		/// <param name="windowsRtPage">The page to decorate.</param>
+		public void AddDecoration( WindowsRTPage windowsRtPage )
 		{
-			Contract.Requires<ArgumentNullException>( page != null );
+			Contract.Requires<ArgumentNullException>( windowsRtPage != null );
 		}
 
 		/// <summary>
 		///     Optionally removes the decoration from the page.
 		/// </summary>
-		/// <param name="page">The page to remove decoration from.</param>
-		public void RemoveDecoration( Page page )
+		/// <param name="windowsRtPage">The page to remove decoration from.</param>
+		public void RemoveDecoration( WindowsRTPage windowsRtPage )
 		{
-			Contract.Requires<ArgumentNullException>( page != null );
+			Contract.Requires<ArgumentNullException>( windowsRtPage != null );
 		}
 		#endregion
 	}

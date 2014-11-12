@@ -10,27 +10,22 @@ using System.Runtime.InteropServices;
 #endif
 [assembly: AssemblyCompany( "Actis Systems" )]
 [assembly: AssemblyProduct("WindowsRT adaptor for Digillect Model-View-ViewModel framework.")]
-[assembly: AssemblyCopyright("� 2011-2013 Actis Systems. All rights reserved.")]
+[assembly: AssemblyCopyright("� 2011-2014 Actis Systems. All rights reserved.")]
 [assembly: AssemblyTrademark("Digillect is a registered trademark of Actis Systems.")]
 
 [assembly: AssemblyVersion(AssemblyInfo.Version)]
 [assembly: AssemblyFileVersion(AssemblyInfo.FileVersion)]
 [assembly: AssemblyInformationalVersion(AssemblyInfo.ProductVersion)]
 
-#if !WINDOWS8
-[assembly: CLSCompliant(true)]
-#else
-[assembly: CLSCompliant(false)]
-#endif
-
 [assembly: ComVisible(false)]
+[assembly: CLSCompliant( false )]
 [assembly: NeutralResourcesLanguage("en-US")]
 [assembly: SatelliteContractVersion(AssemblyInfo.SatelliteContractVersion)]
 
 internal static class AssemblyInfo
 {
 	public const string Major = "2";
-	public const string Minor = "0";
+	public const string Minor = "1";
 	public const string Revision = "0";
 	public const string BuildNumber = "0";
 

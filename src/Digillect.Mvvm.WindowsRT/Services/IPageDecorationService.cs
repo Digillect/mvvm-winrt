@@ -1,5 +1,5 @@
-#region Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
-// Copyright (c) 2011-2013 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
+#region Copyright (c) 2011-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman)
+// Copyright (c) 2011-2014 Gregory Nickonov and Andrew Nefedkin (Actis® Wunderman).
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy of this
 // software and associated documentation files (the "Software"), to deal in the Software
@@ -34,13 +34,13 @@ namespace Digillect.Mvvm.Services
 		/// <summary>
 		///     Performs decoration of the page.
 		/// </summary>
-		/// <param name="page">The page.</param>
-		void AddDecoration( Page page );
+		/// <param name="windowsRtPage">The page.</param>
+		void AddDecoration( WindowsRTPage windowsRtPage );
 
 		/// <summary>
 		///     Optionally removes decoration from the page.
 		/// </summary>
-		/// <param name="page">The page.</param>
-		void RemoveDecoration( Page page );
+		/// <param name="windowsRtPage">The page.</param>
+		void RemoveDecoration( WindowsRTPage windowsRtPage );
 	}
 }
