@@ -12,7 +12,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<LibWPA81 Include="$(BuildPath)\**\Digillect.Mvvm.WindowsRT.*" Exclude="$(ExcludeList)"/>
+		<LibPortable Include="$(BuildPath)\**\Digillect.Mvvm.WindowsRT.*" Exclude="$(ExcludeList)">
+			<Profile>wpa81+netcore451</Profile>
+		</LibPortable>
 	</ItemGroup>
 
 	<Import Project="$(MSBuildProjectDirectory)\packages\Digillect.Build.Tools.$(BuildToolsVersion)\tools\NuGet.Packaging.targets"/>
