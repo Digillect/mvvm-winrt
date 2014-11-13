@@ -22,6 +22,9 @@
 using System;
 using System.Net.NetworkInformation;
 
+using Windows.Networking.Connectivity;
+using Windows.UI.Core;
+
 using Autofac;
 
 namespace Digillect.Mvvm.Services
@@ -38,9 +41,21 @@ namespace Digillect.Mvvm.Services
 		{
 			NetworkAvailable = true;
 
-			NetworkChange.NetworkAddressChanged += NetworkChange_NetworkAddressChanged;
+			NetworkInformation.NetworkStatusChanged += NetworkInformation_NetworkStatusChanged;
 
-			NetworkChange_NetworkAddressChanged( null, EventArgs.Empty );
+			NetworkInformation_NetworkStatusChanged( this );
+		}
+
+		private void NetworkInformation_NetworkStatusChanged( object sender )
+		{
+			var profile = NetworkInformation.GetInternetConnectionProfile();
+
+			var oldNetworkAvailable = NetworkAvailable;
+
+			NetworkAvailable = profile != null;
+
+			if( NetworkAvailable != oldNetworkAvailable && NetworkAvailabilityChanged != null )
+				NetworkAvailabilityChanged( this, EventArgs.Empty );
 		}
 
 		/// <summary>
@@ -54,20 +69,5 @@ namespace Digillect.Mvvm.Services
 		/// Occurs when network availability changed.
 		/// </summary>
 		public event EventHandler NetworkAvailabilityChanged;
-
-		private void NetworkChange_NetworkAddressChanged( object sender, EventArgs e )
-		{
-			var oldNetworkAvailable = NetworkAvailable;
-
-			NetworkAvailable = InspectNetwork();//await Task.Run<bool>( InspectNetwork );
-
-			if( NetworkAvailable != oldNetworkAvailable && NetworkAvailabilityChanged != null )
-				NetworkAvailabilityChanged( this, EventArgs.Empty );
-		}
-
-		private static bool InspectNetwork()
-		{
-			return NetworkInterface.GetIsNetworkAvailable();
-		}
 	}
 }
