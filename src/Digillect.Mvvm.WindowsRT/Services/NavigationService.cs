@@ -192,16 +192,24 @@ namespace Digillect.Mvvm.Services
 					throw new ViewNavigationException( String.Format( "View '{0}' is not registered.", viewName ) );
 				}
 
-				for( int i = 0; i < journalEntries.Count() - 1; i++ )
+				var breadcrumb = _breadcrumbs.Count > 0 ? _breadcrumbs.Pop() : null;
+
+				for( int i = journalEntries.Count() - 1; i > 0; i-- )
 				{
 					if( journalEntries[i].SourcePageType != descriptor.Type )
 					{
-						backStacks.Remove( backStacks.LastOrDefault() );
+						backStacks.Remove( journalEntries[i] );
+						PopBreadcrumb( journalEntries[i].SourcePageType );
 					}
 					else
 					{
 						break;
 					}
+				}
+
+				if( breadcrumb != null )
+				{
+					_breadcrumbs.Push( breadcrumb );
 				}
 
 				_navigationIsInProgress = false;
