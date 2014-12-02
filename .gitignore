@@ -1,8 +1,18 @@
 /packages/
 /target/
 /[Tt]est[Rr]esults/
+[Tt]humbs.db
 
+/_ReSharper.*/
+
+obj/
+
+*.sap
 *.suo
-*.vsdoc
 *.user
-*.DotSettings
+*.bak
+*.obj
+*.dll
+*.exe
+*.pdb
+*.log
